@@ -13,14 +13,6 @@ void testProcessImage(char*);
 void createTrackBars();
 cv::Mat modifyWithTrackBars(cv::Mat);
 
-char* backgroundLocation = "TestImages\\background.jpg";
-int iLowH = 0;
-int iHighH = 179;
-int iLowS = 0; 
-int iHighS = 255;
-int iLowV = 0;
-int iHighV = 255;
-
 int main(int argc, char** argv) {
 		// select what is to be processed
 	if (argc < 2) {
@@ -64,47 +56,41 @@ void processVideo(cv::VideoCapture capture) {
 }
 
 void processImage(char* filename) {
-	cv::Mat image, hsv_image, threshold_image;
-	image = openImage(filename);
-	hsv_image = convertToHSV(image);
-	threshold_image = colorThresholding(hsv_image, RED);
-	displayFrame("Color Threshold", threshold_image);
+	cv::Mat image, background_image, threshold_image;
 
-	findRectangle(threshold_image);
-	displayFrame("Threshold Colors", threshold_image);
+	image = openImage(filename);
+
+
+	//threshold_image = colorThresholding(image, RED);
+	//displayFrame("Color Threshold", threshold_image);
+
+	//threshold_image = convertToGREY(threshold_image);
+	//blur(threshold_image, threshold_image, cv::Size(3,3));
+	//displayFrame("Grey Color", threshold_image);
+	//threshold(threshold_image, threshold_image, 20, 255, CV_THRESH_BINARY);
+	
+	//threshold_image = findEdges(image, "GREY");
+	//displayFrame("Threshold Grey", threshold_image);
+	
 	while ((char)cv::waitKey(0) != 27) {
 		exit(EXIT_SUCCESS);
 	}
 }
 
 void testProcessImage(char* filename) {
-	cv::Mat image, hsv_image, threshold_image;
-	image = openImage(filename);
-	hsv_image = convertToHSV(image);
-	createTrackBars();
-	displayFrame("Original Image", image);
+	cv::Mat source_image, thresholded_image, contoured_image;
 
+	source_image = openImage(filename);
+	//displayFrame("Original Image", source_image);
+	
+	createTrackBars();
+	
 	while ((char)cv::waitKey(5) != 27) {
-		threshold_image = modifyWithTrackBars(hsv_image);
-		displayFrame("Threshold Colors", threshold_image);
+		displayFrame("Original Image", source_image);
+		thresholded_image = modifyWithTrackBars(source_image);
+		displayFrame("Colors", thresholded_image);
+		contoured_image = findEdges(source_image.clone(), thresholded_image, "HSV");
+		displayFrame("Contours", contoured_image);
 	}
 	exit(EXIT_SUCCESS);
-}
-
-void createTrackBars() {
-	cv::namedWindow("Control", CV_WINDOW_AUTOSIZE);
-	
-	//Create trackbars in "Control" window
-	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
-	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
-	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
-	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
-	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
-	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-}
-
-cv::Mat modifyWithTrackBars(cv::Mat image) {
-	cv::Mat imageThresholded;
-	inRange(image, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), imageThresholded);
-	return imageThresholded;
 }

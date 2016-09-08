@@ -42,6 +42,7 @@ cv::Mat openImage(char* fileName) {
 		std::cout << fileName << " failed to open" << std::endl;
 		exit(EXIT_FAILURE);
 	} else {
+		std::cout << fileName << " opened successfully" << std::endl;
 		return image;
 	}
 }
