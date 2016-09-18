@@ -15,6 +15,8 @@
 cv::Mat convertToHSV(cv::Mat);
 cv::Mat convertToGREY(cv::Mat);
 cv::Mat colorThresholding(cv::Mat, int);
-cv::Mat findEdges(cv::Mat, cv::Mat, std::string);
+cv::vector<cv::vector<cv::Point>> findEdges(cv::Mat, std::string);
+void evaluateContours(cv::vector<cv::vector<cv::Point>>);
+cv::Mat drawContours(cv::Mat, cv::vector<cv::vector<cv::Point>>);
 
 #endif

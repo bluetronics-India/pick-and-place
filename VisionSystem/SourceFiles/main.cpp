@@ -6,6 +6,8 @@
 #define YELLOW 1
 #define WHITE 2
 #define BLUE 3
+#define GREEN 4
+#define ALL 5
 
 void processVideo(cv::VideoCapture);
 void processImage(char*);
@@ -56,21 +58,20 @@ void processVideo(cv::VideoCapture capture) {
 }
 
 void processImage(char* filename) {
-	cv::Mat image, background_image, threshold_image;
+	cv::Mat source_image, background_image, threshold_image, contoured_image;
+	cv::vector<cv::vector<cv::Point>> contours;
 
-	image = openImage(filename);
+	source_image = openImage(filename);
 
 
-	//threshold_image = colorThresholding(image, RED);
-	//displayFrame("Color Threshold", threshold_image);
+	threshold_image = colorThresholding(source_image, ALL);
+	displayFrame("Color Threshold", threshold_image);
 
-	//threshold_image = convertToGREY(threshold_image);
-	//blur(threshold_image, threshold_image, cv::Size(3,3));
-	//displayFrame("Grey Color", threshold_image);
-	//threshold(threshold_image, threshold_image, 20, 255, CV_THRESH_BINARY);
-	
-	//threshold_image = findEdges(image, "GREY");
-	//displayFrame("Threshold Grey", threshold_image);
+	evaluateContours(
+
+	contoured_image = drawContours(source_image.clone(), findEdges(threshold_image, "HSV"));
+	displayFrame("Contours", contoured_image);
+
 	
 	while ((char)cv::waitKey(0) != 27) {
 		exit(EXIT_SUCCESS);
@@ -89,7 +90,7 @@ void testProcessImage(char* filename) {
 		displayFrame("Original Image", source_image);
 		thresholded_image = modifyWithTrackBars(source_image);
 		displayFrame("Colors", thresholded_image);
-		contoured_image = findEdges(source_image.clone(), thresholded_image, "HSV");
+		contoured_image = drawContours(source_image.clone(), findEdges(thresholded_image, "HSV"));
 		displayFrame("Contours", contoured_image);
 	}
 	exit(EXIT_SUCCESS);
