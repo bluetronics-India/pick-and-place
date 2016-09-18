@@ -7,12 +7,6 @@
 #define GREEN 4
 #define ALL 5
 
-/*
-* Vec3b[2] -> red
-* Vec3b[1] -> green
-* Vec3b[0] -> blue
-*/
-
 int iLowH = 0;
 int iHighH = 179;
 int iLowS = 0; 
@@ -21,6 +15,60 @@ int iLowV = 0;
 int iHighV = 255;
 
 cv::vector<cv::Vec4i> hierarchy;
+
+bool redContourExists(cv::Mat image) {
+	image = colorThresholding(image, RED);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int red_contour_index = getContourIndex(contours);
+	if (red_contour_index == -1) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+cv::vector<cv::Point> getRedContour(cv::Mat image) {
+	image = colorThresholding(image, RED);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int red_contour_index = getContourIndex(contours);
+	return contours[red_contour_index];
+}
+
+bool blueContourExists(cv::Mat image) {
+	image = colorThresholding(image, BLUE);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int blue_contour_index = getContourIndex(contours);
+	if (blue_contour_index == -1) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+cv::vector<cv::Point> getBlueContour(cv::Mat image) {
+	image = colorThresholding(image, BLUE);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int blue_contour_index = getContourIndex(contours);
+	return contours[blue_contour_index];
+}
+
+bool greenContourExists(cv::Mat image) {
+	image = colorThresholding(image, GREEN);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int green_contour_index = getContourIndex(contours);
+	if (green_contour_index == -1) {
+		return false;
+	} else {
+		return true;
+	}
+}
+
+cv::vector<cv::Point> getGreenContour(cv::Mat image) {
+	image = colorThresholding(image, GREEN);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
+	int green_contour_index = getContourIndex(contours);
+	return contours[green_contour_index];
+}
 
 // BGR to HSV converter
 cv::Mat convertToHSV(cv::Mat image) {
@@ -38,7 +86,7 @@ cv::Mat convertToGREY(cv::Mat image) {
 	return grey_image;
 }
 
-// Threshold image for a specific color
+// Converts image from BGR to HSV and then creates a binary image based on color thresholds
 cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 	cv::Mat hsv_image, threshold_image;
 	hsv_image = convertToHSV(image);
@@ -63,51 +111,41 @@ cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 	return threshold_image;
 }
 
-cv::vector<cv::vector<cv::Point>> findEdges(cv::Mat image, std::string image_format) {
+cv::vector<cv::vector<cv::Point>> getImageContours(cv::Mat image) {
 	cv::vector<cv::vector<cv::Point>> contours;
-	cv::Mat image_to_contour;
-	int thresh = 180; // needs to be optimised
-
-	if (image_format == "HSV") {
-		image_to_contour = image;
-	} else if (image_format == "GREY") {
-		image_to_contour = convertToGREY(image);
-		threshold(image_to_contour, image_to_contour, thresh, 255, CV_THRESH_BINARY);
-	} else {
-		std::cout << "Image format not supported. Please use greyscale or HSV." << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	cv::findContours(image_to_contour, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-	
-	/*for(int i= 0; i < contours.size(); i++) {
-		double area = cv::contourArea(contours[i], false);
-		if (area > largest_contour_area) {
-			largest_contour_area = area;
-			largest_contour_index = i;
-		}
-	}*/
-
+	cv::findContours(image, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);	
 	return contours;
 }
 
 // Perform checks on contours passed as parameter
-void evaluateContours(cv::vector<cv::vector<cv::Point>> contours) {
-		if (contours.size() > 0) {
+int getContourIndex(cv::vector<cv::vector<cv::Point>> contours) {
+	if (contours.size() > 0) {
 		std::cout << "Total number of contours: " << contours.size() << std::endl;
 		for (int i = 0; i < contours.size(); i++) {
-			std::cout << "Contour " << i << " :" << std::endl;
-			std::cout << contours[i] << std::endl;
+			double area = cv::contourArea(contours[i], false);
+			if (area >= 1000 && area <= 1500) {
+				return i;
+			}
 		}
 	}
+	return -1;
+}
+
+int getContourStartPointX(cv::vector<cv::Point> contour) {
+	//return contour[0];
+	return 0;
+}
+
+int getContourStartPointY(cv::vector<cv::Point> contour) {
+	//return contour[1];
+	return 0;
 }
 
 // Draw contours onto image passed as parameter
-cv::Mat drawContours(cv::Mat source_image, cv::vector<cv::vector<cv::Point>> contours) {
-	cv::drawContours(source_image, contours, -1, CV_RGB(250,255,0), 2, 6, hierarchy);
+cv::Mat drawContours(cv::Mat source_image, cv::vector<cv::vector<cv::Point>> contours, int index) {
+	cv::drawContours(source_image, contours, index, CV_RGB(250,255,0), 2, 6, hierarchy);
 	return source_image;
 }
-
 
 // Create the trackbars to get the thresholds required
 void createTrackBars() {

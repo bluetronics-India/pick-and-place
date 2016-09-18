@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="SourceFiles\blocks.cpp" />
     <ClCompile Include="SourceFiles\main.cpp" />
     <ClCompile Include="SourceFiles\serial.cpp" />
     <ClCompile Include="SourceFiles\vision.cpp">
@@ -41,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
+    <ClInclude Include="SourceFiles\blocks.h" />
     <ClInclude Include="SourceFiles\serial.h" />
     <ClInclude Include="SourceFiles\vision.h" />
     <ClInclude Include="SourceFiles\visionprocessing.h" />

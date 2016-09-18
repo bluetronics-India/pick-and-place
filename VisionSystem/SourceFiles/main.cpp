@@ -64,12 +64,13 @@ void processImage(char* filename) {
 	source_image = openImage(filename);
 
 
-	threshold_image = colorThresholding(source_image, ALL);
+	threshold_image = colorThresholding(source_image, RED);
 	displayFrame("Color Threshold", threshold_image);
 
-	evaluateContours(
+	contours = getImageContours(threshold_image);
+	int index = getContourIndex(contours);
 
-	contoured_image = drawContours(source_image.clone(), findEdges(threshold_image, "HSV"));
+	contoured_image = drawContours(source_image.clone(), contours, index);
 	displayFrame("Contours", contoured_image);
 
 	
@@ -90,7 +91,7 @@ void testProcessImage(char* filename) {
 		displayFrame("Original Image", source_image);
 		thresholded_image = modifyWithTrackBars(source_image);
 		displayFrame("Colors", thresholded_image);
-		contoured_image = drawContours(source_image.clone(), findEdges(thresholded_image, "HSV"));
+		//contoured_image = drawContours(source_image.clone(), findEdges(thresholded_image, "HSV"));
 		displayFrame("Contours", contoured_image);
 	}
 	exit(EXIT_SUCCESS);
