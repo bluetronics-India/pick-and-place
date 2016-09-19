@@ -1,6 +1,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "vision.h"
 #include "visionprocessing.h"
+#include "blocks.h"
 
 #define RED 0
 #define YELLOW 1
@@ -10,10 +11,8 @@
 #define ALL 5
 
 void processVideo(cv::VideoCapture);
-void processImage(char*);
-void testProcessImage(char*);
-void createTrackBars();
-cv::Mat modifyWithTrackBars(cv::Mat);
+void processImage(cv::Mat);
+void testProcessImage(cv::Mat);
 
 int main(int argc, char** argv) {
 		// select what is to be processed
@@ -35,64 +34,70 @@ int main(int argc, char** argv) {
 			std::cout << "Incorrect program call please use \"VisionSystem.exe -img filename\" for image processing" << std::endl;
 			exit(EXIT_FAILURE);
 		} else {
-			processImage(argv[2]);
+			cv::Mat frame;
+			cv::VideoCapture capture = startCameraStream(0);
+			capture >> frame;
+			processImage(frame);
 			//std::cout << "it worked" << std::endl;
 		}
 	} else if (std::strcmp(argv[1], "-test") == 0) {
-		testProcessImage("TestImages\\test.png");
+		//cv::VideoCapture capture = startCameraStream(0);
+		//cv::Mat frame;
+		cv::Mat source_image = openImage("images\\capture.png");
+		//capture >> frame;
+		testProcessImage(source_image);
 	} else {
 		std::cout << "You are an IDIOT!!!!" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	return 0;
 }
 
 void processVideo(cv::VideoCapture capture) {
-	int keyboard = 0;
 	cv::Mat frame;
-	createDisplay("VS Before Filters");
-	while ((char)keyboard != 27) {
+	capture >> frame;
+	//displayFrame("Initial View", frame);
+	cv::waitKey(5);
+	while (!intialisePos1(frame)) {
 		capture >> frame;
-		displayFrame("Before Filters", frame);
-		keyboard = cv::waitKey(5);
+		intialisePos1(frame);
+	}
+	
+	while ((char)cv::waitKey(5) != 27) {
+		capture >> frame;
+		checkForColoredBlocks(frame);
+		displayFrame("Image", frame);
+		saveFrame(frame);
 	}
 }
 
-void processImage(char* filename) {
-	cv::Mat source_image, background_image, threshold_image, contoured_image;
-	cv::vector<cv::vector<cv::Point>> contours;
+void processImage(cv::Mat frame) {
 
-	source_image = openImage(filename);
+	//intialisePos1(frame);
 
-
-	threshold_image = colorThresholding(source_image, RED);
-	displayFrame("Color Threshold", threshold_image);
-
-	contours = getImageContours(threshold_image);
-	int index = getContourIndex(contours);
-
-	contoured_image = drawContours(source_image.clone(), contours, index);
-	displayFrame("Contours", contoured_image);
-
-	
-	while ((char)cv::waitKey(0) != 27) {
-		exit(EXIT_SUCCESS);
+	if (blueContourExists(frame)) {
+		std::cout << "found blue contour" << std::endl;
+	} else {
+		std::cout << "failed" << std::endl;
 	}
+	//blue_contour = getBlueContour(frame);
+	// get contours corner
+	//int blueX = getContourStartPointX(blue_contour);
+	//int blueY = getContourStartPointY(blue_contour);
+	//checkPos(blueX, blueY);
+
+	//checkForColoredBlocks(source_image);
 }
 
-void testProcessImage(char* filename) {
-	cv::Mat source_image, thresholded_image, contoured_image;
-
-	source_image = openImage(filename);
-	//displayFrame("Original Image", source_image);
-	
+void testProcessImage(cv::Mat frame) {
+	cv::Mat thresholded_image, contoured_image;
 	createTrackBars();
 	
 	while ((char)cv::waitKey(5) != 27) {
-		displayFrame("Original Image", source_image);
-		thresholded_image = modifyWithTrackBars(source_image);
+		displayFrame("Original Image", frame);
+		thresholded_image = modifyWithTrackBars(frame);
 		displayFrame("Colors", thresholded_image);
-		//contoured_image = drawContours(source_image.clone(), findEdges(thresholded_image, "HSV"));
+		contoured_image = drawContours(frame.clone(), getImageContours(thresholded_image), getContourIndex(getImageContours(thresholded_image)));
 		displayFrame("Contours", contoured_image);
 	}
-	exit(EXIT_SUCCESS);
 }

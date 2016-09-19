@@ -28,4 +28,7 @@ cv::vector<cv::Point> getRedContour(cv::Mat);
 cv::vector<cv::Point> getBlueContour(cv::Mat);
 cv::vector<cv::Point> getGreenContour(cv::Mat);
 
+cv::Mat modifyWithTrackBars(cv::Mat);
+void createTrackBars();
+
 #endif

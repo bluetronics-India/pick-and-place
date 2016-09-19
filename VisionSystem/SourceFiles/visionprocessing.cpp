@@ -36,9 +36,12 @@ cv::vector<cv::Point> getRedContour(cv::Mat image) {
 
 bool blueContourExists(cv::Mat image) {
 	image = colorThresholding(image, BLUE);
+	//displayFrame("blue", image);
+	//cv::waitKey(1000);
 	cv::vector<cv::vector<cv::Point>> contours = getImageContours(image);
 	int blue_contour_index = getContourIndex(contours);
 	if (blue_contour_index == -1) {
+		//std::cout << "index -1" << std::endl;
 		return false;
 	} else {
 		return true;
@@ -88,12 +91,18 @@ cv::Mat convertToGREY(cv::Mat image) {
 
 // Converts image from BGR to HSV and then creates a binary image based on color thresholds
 cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
-	cv::Mat hsv_image, threshold_image;
+	cv::Mat hsv_image, threshold_image, lower_red, upper_red;
 	hsv_image = convertToHSV(image);
 	
 	switch (threshold_color) {
 	case RED:
-		inRange(hsv_image, cv::Scalar(140, 100, 100), cv::Scalar(255, 255, 255), threshold_image);
+		inRange(hsv_image, cv::Scalar(0, 40, 140), cv::Scalar(20, 255, 255), lower_red);
+		//displayFrame("lower red", lower_red);
+		inRange(hsv_image, cv::Scalar(140, 40, 140), cv::Scalar(180, 255, 255), upper_red);
+		//displayFrame("upper red", upper_red);
+		addWeighted(lower_red, 1.0, upper_red, 1.0, 0.0, threshold_image);
+		//displayFrame("combined", threshold_image);
+		//cv::waitKey(10000);
 		break;
 	case YELLOW:
 		inRange(hsv_image, cv::Scalar(17, 70, 130), cv::Scalar(30, 160, 190), threshold_image);
@@ -102,7 +111,10 @@ cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 		inRange(hsv_image, cv::Scalar(11, 12, 142), cv::Scalar(40, 80, 170), threshold_image);
 		break;
 	case BLUE:
-		inRange(hsv_image, cv::Scalar(100, 85, 60), cv::Scalar(125, 140, 80), threshold_image);
+		inRange(hsv_image, cv::Scalar(75, 75, 75), cv::Scalar(120, 255, 255), threshold_image);
+		break;
+	case GREEN:
+		inRange(hsv_image, cv::Scalar(50, 40, 40), cv::Scalar(100, 255, 200), threshold_image);
 		break;
 	case ALL:
 		inRange(hsv_image, cv::Scalar(0, 0, 0), cv::Scalar(179, 255, 255), threshold_image);
@@ -120,10 +132,11 @@ cv::vector<cv::vector<cv::Point>> getImageContours(cv::Mat image) {
 // Perform checks on contours passed as parameter
 int getContourIndex(cv::vector<cv::vector<cv::Point>> contours) {
 	if (contours.size() > 0) {
-		std::cout << "Total number of contours: " << contours.size() << std::endl;
+		//std::cout << "Total number of contours: " << contours.size() << std::endl;
 		for (int i = 0; i < contours.size(); i++) {
 			double area = cv::contourArea(contours[i], false);
-			if (area >= 1000 && area <= 1500) {
+			//std::cout << "Area of contour " << i << ": " << area << std::endl;
+			if (area >= 700 && area <= 1200) {
 				return i;
 			}
 		}
@@ -132,13 +145,11 @@ int getContourIndex(cv::vector<cv::vector<cv::Point>> contours) {
 }
 
 int getContourStartPointX(cv::vector<cv::Point> contour) {
-	//return contour[0];
-	return 0;
+	return (int)contour[0].x;
 }
 
 int getContourStartPointY(cv::vector<cv::Point> contour) {
-	//return contour[1];
-	return 0;
+	return (int)contour[0].y;
 }
 
 // Draw contours onto image passed as parameter

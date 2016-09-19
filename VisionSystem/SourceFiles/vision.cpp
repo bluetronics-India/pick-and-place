@@ -29,9 +29,9 @@ void saveFrame(cv::Mat frame) {
 	std::stringstream ss;
 	ss << imageCount++;
 
-	std::string filename = "C:\\Images\\capture" 
-		+  ss.str()
-		+ ".png";
+	std::string filename = "capture.png";
+	//	+  ss.str()
+	//	+ ".png";
 	cv::imwrite(filename,frame);
 }
 

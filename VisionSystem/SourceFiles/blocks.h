@@ -12,7 +12,7 @@
 /*
 * Function declarations need to be implemented in the implementation file
 */
-void intialisePos1(cv::Mat);
+bool intialisePos1(cv::Mat);
 void checkForColoredBlocks(cv::Mat);
 void checkPos(int, int);
 
