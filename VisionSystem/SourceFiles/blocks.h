@@ -1,19 +1,39 @@
+/*
+* File: blocks.h
+* Author: Justin Wolf
+* Date: 
+* 
+* Description: Uses opencv features to detect different color blocks.
+*/
+
 #ifndef BLOCKS_H
 #define BLOCKS_H
 
+/*
+******************************************* Include Declarations ******************************************
+*/
 
 #include <iostream>
 
 #include "opencv2/opencv.hpp"
-#include "visionprocessing.h"
+#include "contours.h"
 #include "serial.h"
 
-
 /*
-* Function declarations need to be implemented in the implementation file
+******************************************* Method Declarations *******************************************
 */
 bool intialisePos1(cv::Mat);
+void setArea(cv::Mat);
+
 void checkForColoredBlocks(cv::Mat);
+bool checkRedBlockExists(cv::Mat);
+bool checkBlueBlockExists(cv::Mat);
+bool checkGreenBlockExists(cv::Mat);
+
+cv::vector<cv::vector<cv::Point>> getRedContours(cv::Mat);
+cv::vector<cv::vector<cv::Point>> getBlueContours(cv::Mat);
+cv::vector<cv::vector<cv::Point>> getGreenContours(cv::Mat);
+
 void checkPos(int, int);
 
 #endif

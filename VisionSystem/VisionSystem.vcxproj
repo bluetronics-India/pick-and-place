@@ -20,9 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceFiles\blocks.cpp" />
+    <ClCompile Include="SourceFiles\contours.cpp" />
     <ClCompile Include="SourceFiles\main.cpp" />
     <ClCompile Include="SourceFiles\serial.cpp" />
-    <ClCompile Include="SourceFiles\vision.cpp">
+    <ClCompile Include="SourceFiles\frame.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
@@ -38,14 +39,15 @@
       <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Async</ExceptionHandling>
     </ClCompile>
-    <ClCompile Include="SourceFiles\visionprocessing.cpp" />
+    <ClCompile Include="SourceFiles\colors.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClInclude Include="SourceFiles\blocks.h" />
+    <ClInclude Include="SourceFiles\contours.h" />
     <ClInclude Include="SourceFiles\serial.h" />
-    <ClInclude Include="SourceFiles\vision.h" />
-    <ClInclude Include="SourceFiles\visionprocessing.h" />
+    <ClInclude Include="SourceFiles\frame.h" />
+    <ClInclude Include="SourceFiles\colors.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VisionSystem.rc" />

@@ -3,17 +3,24 @@
 * Author: Justin Wolf
 * Date: 24/08/2016
 * 
-* Description: Header for all source code dealing with writing to the serial port"
+* Description: Allows interfacing through serial port communication.
 */
-
 
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#using <system.dll>
+/*
+******************************************* Include Declarations ******************************************
+*/
 
+#using <system.dll>
+#include <iostream>
 using namespace System;
 using namespace System::IO::Ports;
+
+/*
+******************************************* Method Declarations *******************************************
+*/
 
 bool openPort();
 bool closePort();

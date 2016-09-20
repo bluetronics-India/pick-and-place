@@ -1,0 +1,141 @@
+/*
+* File: colors.cpp
+* Author: Justin Wolf
+* Date: 
+* 
+* Description: Uses opencv's color detection and modification features to allow an image to be thresholded
+*              by its color.
+*/
+
+/*
+******************************************* Include Declarations ******************************************
+*/
+
+#include "colors.h"
+
+/*
+****************************************** Constants Declarations ******************************************
+*/
+
+#define RED 0
+#define YELLOW 1
+#define WHITE 2
+#define BLUE 3
+#define GREEN 4
+#define ALL 5
+
+/*
+****************************************** Variable Declarations ******************************************
+*/
+
+int iLowH = 0;
+int iHighH = 179;
+int iLowS = 0; 
+int iHighS = 255;
+int iLowV = 0;
+int iHighV = 255;
+
+/*
+****************************************** Method Implementations ******************************************
+*/
+
+/*
+* Function: convertToHSV
+* Parameters: cv::Mat
+* Return: cv::Mat 
+* Purpose: BGR to HSV converter
+*/
+cv::Mat convertToHSV(cv::Mat image) {
+	cv::Mat hsv_image;
+	cv::cvtColor(image, hsv_image, CV_BGR2HSV);
+	//std::cout << "Successfully converted BGR image to HSV image" << std::endl;
+	return hsv_image;
+}
+
+/*
+* Function: convertToGREY
+* Parameters: cv::Mat
+* Return: cv::Mat
+* Purpose: BGR to Greyscale converter
+*/
+cv::Mat convertToGREY(cv::Mat image) {
+	cv::Mat grey_image;
+	cv::cvtColor(image, grey_image, CV_BGR2GRAY);
+	//std::cout << "Successfully converted BGR image to Greyscale image" << std::endl;
+	return grey_image;
+}
+
+/*
+* Function: colorThresholding
+* Parameters: cv::Mat, int
+* Return: cv::Mat
+* Purpose: Converts image from BGR to HSV and then creates a binary image based on color thresholds
+*/
+cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
+	cv::Mat hsv_image, threshold_image, lower_red, upper_red;
+	hsv_image = convertToHSV(image);
+	
+	switch (threshold_color) {
+	case RED:
+		inRange(hsv_image, cv::Scalar(0, 80, 140), cv::Scalar(20, 255, 255), lower_red);
+		//displayFrame("lower red", lower_red);
+		inRange(hsv_image, cv::Scalar(140, 80, 140), cv::Scalar(255, 255, 255), upper_red);
+		//displayFrame("upper red", upper_red);
+		addWeighted(lower_red, 1.0, upper_red, 1.0, 0.0, threshold_image);
+		//displayFrame("combined", threshold_image);
+		//cv::waitKey(10);
+		break;
+	case YELLOW:
+		inRange(hsv_image, cv::Scalar(17, 70, 130), cv::Scalar(30, 160, 190), threshold_image);
+		break;
+	case WHITE:
+		inRange(hsv_image, cv::Scalar(11, 12, 142), cv::Scalar(40, 80, 170), threshold_image);
+		break;
+	case BLUE:
+		inRange(hsv_image, cv::Scalar(75, 75, 75), cv::Scalar(120, 255, 255), threshold_image);
+		break;
+	case GREEN:
+		inRange(hsv_image, cv::Scalar(50, 40, 40), cv::Scalar(100, 255, 200), threshold_image);
+		break;
+	case ALL:
+		inRange(hsv_image, cv::Scalar(0, 0, 0), cv::Scalar(179, 255, 255), threshold_image);
+		break;
+	}
+	return threshold_image;
+}
+
+/*
+* Function: createTrackBars
+* Parameters: N/A
+* Return: void
+* Purpose: Create the trackbars to allow thresholding of an HSV image
+*/
+void createTrackBars() {
+
+	cv::namedWindow("Control", CV_WINDOW_AUTOSIZE);
+	
+	//Create trackbars in "Control" window
+	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
+	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
+	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
+	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
+
+	std::cout << "Trackbars interface successfully initialised." << std::endl;
+}
+
+/*
+* Function: modifyWithTrackBars
+* Parameters: cv::Mat
+* Return: cv::Mat
+* Purpose: Converts image to HSV
+*          Thresholds image based on values obtained from the trackbars
+*          Returns binary image
+*/
+cv::Mat modifyWithTrackBars(cv::Mat image) {
+	cv::Mat hsv_image, imageThresholded;
+	hsv_image = convertToHSV(image);
+	inRange(hsv_image, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), imageThresholded);
+	return imageThresholded;
+}

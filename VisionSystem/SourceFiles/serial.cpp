@@ -3,32 +3,57 @@
 * Author: Justin Wolf
 * Date: 24/08/2016
 * 
-* Description: Implementation file for header file "serial.h"
+* Description: Allows interfacing through serial port communication.
 */
 
-// include header file
+
+/*
+******************************************* Include Declarations ******************************************
+*/
+
 #include "serial.h"
 
-// create a variable in which to store the port
+/*
+****************************************** Variable Declarations ******************************************
+*/
+
+
+/*
+****************************************** Method Implementations ******************************************
+*/
+
+/*
+* Function: createPort
+* Parameters: N/A
+* Return: SerialPort^
+* Purpose: create a variable in which to store the port
+*/
  SerialPort^ createPort() {
 	 int baudRate = 9600;
 	 SerialPort^ port = gcnew SerialPort("COM4", baudRate);
 	 return port;
  }
 
-// instantiates and opens a serial port
+ /*
+* Function: openPort
+* Parameters: SerialPort^
+* Return: boolean
+* Purpose: instantiates and opens a serial port
+*/
 bool openPort(SerialPort^ port) {
-	
-	System::Console::WriteLine("Opening port");
-	
-
 	while(!port->IsOpen) {
 		port->Open();
 	}
+	//std::cout << "Port opened" << std::endl;
 	return true;
 }
 
-// closes the port
+/*
+* Function: closePort
+* Parameters: SerialPort^
+* Return: boolean
+* Purpose: closes the port
+*/
 bool closePort(SerialPort^ port) {
 	while (port->IsOpen) {
 		port->Close();
@@ -36,7 +61,12 @@ bool closePort(SerialPort^ port) {
 	return true;
 }
 
-// writes the argument passed to the port
+/*
+* Function: writeToPort
+* Parameters: int
+* Return: void
+* Purpose: writes the argument passed to the port
+*/
 void writeToPort(int msg) {
 	SerialPort^ port = createPort();
 	openPort(port);
