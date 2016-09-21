@@ -78,12 +78,8 @@ cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 	switch (threshold_color) {
 	case RED:
 		inRange(hsv_image, cv::Scalar(0, 80, 140), cv::Scalar(20, 255, 255), lower_red);
-		//displayFrame("lower red", lower_red);
 		inRange(hsv_image, cv::Scalar(140, 80, 140), cv::Scalar(255, 255, 255), upper_red);
-		//displayFrame("upper red", upper_red);
 		addWeighted(lower_red, 1.0, upper_red, 1.0, 0.0, threshold_image);
-		//displayFrame("combined", threshold_image);
-		//cv::waitKey(10);
 		break;
 	case YELLOW:
 		inRange(hsv_image, cv::Scalar(17, 70, 130), cv::Scalar(30, 160, 190), threshold_image);
@@ -105,35 +101,33 @@ cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 }
 
 /*
-* Function: createTrackBars
+* Function: createColorTrackBars
 * Parameters: N/A
 * Return: void
 * Purpose: Create the trackbars to allow thresholding of an HSV image
 */
-void createTrackBars() {
+void createColorTrackBars() {
 
-	cv::namedWindow("Control", CV_WINDOW_AUTOSIZE);
+	cv::namedWindow("Color Thresholds", CV_WINDOW_AUTOSIZE);
 	
 	//Create trackbars in "Control" window
-	cvCreateTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
-	cvCreateTrackbar("HighH", "Control", &iHighH, 179);
-	cvCreateTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
-	cvCreateTrackbar("HighS", "Control", &iHighS, 255);
-	cvCreateTrackbar("LowV", "Control", &iLowV, 255); //Value (0 - 255)
-	cvCreateTrackbar("HighV", "Control", &iHighV, 255);
-
-	std::cout << "Trackbars interface successfully initialised." << std::endl;
+	cvCreateTrackbar("LowH", "Color Thresholds", &iLowH, 179); // Hue (0 - 179)
+	cvCreateTrackbar("HighH", "Color Thresholds", &iHighH, 179);
+	cvCreateTrackbar("LowS", "Color Thresholds", &iLowS, 255); // Saturation (0 - 255)
+	cvCreateTrackbar("HighS", "Color Thresholds", &iHighS, 255);
+	cvCreateTrackbar("LowV", "Color Thresholds", &iLowV, 255); // Value (0 - 255)
+	cvCreateTrackbar("HighV", "Color Thresholds", &iHighV, 255);
 }
 
 /*
-* Function: modifyWithTrackBars
+* Function: manualColorFiltering
 * Parameters: cv::Mat
 * Return: cv::Mat
 * Purpose: Converts image to HSV
 *          Thresholds image based on values obtained from the trackbars
 *          Returns binary image
 */
-cv::Mat modifyWithTrackBars(cv::Mat image) {
+cv::Mat manualColorFiltering(cv::Mat image) {
 	cv::Mat hsv_image, imageThresholded;
 	hsv_image = convertToHSV(image);
 	inRange(hsv_image, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), imageThresholded);

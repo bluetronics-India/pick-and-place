@@ -66,7 +66,7 @@ bool intialisePos1(cv::Mat frame) {
 		minArea = area - 500;
 		maxArea = area + 500;
 		
-		int index = getContourIndex(contours, minArea, maxArea);
+		int index = getContourByArea(contours, minArea, maxArea);
 		if (index == -1) {
 			return false;
 		} else {
@@ -112,7 +112,7 @@ bool checkRedBlockExists(cv::Mat frame) {
 	if (contours.size() < 1) {
 		return false;
 	} else {
-		int index = getContourIndex(contours, minArea, maxArea);
+		int index = getContourByArea(contours, minArea, maxArea);
 		if (index == -1) {
 			return false;
 		} else {
@@ -136,7 +136,7 @@ bool checkBlueBlockExists(cv::Mat frame) {
 	if (contours.size() < 1) {
 		return false;
 	} else {
-		int index = getContourIndex(contours, minArea, maxArea);
+		int index = getContourByArea(contours, minArea, maxArea);
 		if (index == -1) {
 			return false;
 		} else {
@@ -160,7 +160,7 @@ bool checkGreenBlockExists(cv::Mat frame) {
 	if (contours.size() < 1) {
 		return false;
 	} else {
-		int index = getContourIndex(contours, minArea, maxArea);
+		int index = getContourByArea(contours, minArea, maxArea);
 		if (index == -1) {
 			return false;
 		} else {
@@ -217,21 +217,23 @@ cv::vector<cv::vector<cv::Point>> getGreenContours(cv::Mat image) {
 void checkPos(int blockX, int blockY) {
 	//std::cout << "pos1X: " << pos1X << " pos1Y: " << pos1Y << std::endl;
 	//std::cout << "blockX: " << blockX << " blockY: " << blockY << std::endl;
+	int error = 25;
+	int lowerThreshX = pos1X - error;
+	int upperThreshX = pos1X + error;
+	int lowerThreshY = pos1Y - error;
+	int upperThreshY = pos1Y + error;
 
-	if (blockX >= (pos1X - 20) && blockX <= (pos1X + 20)) {
+	if ((blockX >= lowerThreshX && blockX <= upperThreshX) && (blockY >= lowerThreshY && blockY <= upperThreshY)) {
 		// write position 1 output to serial port
 		std::cout << "Go to position 1" << std::endl;
 		writeToPort(1);
-		
-	} else if (blockX <= (pos1X - 20)) {
+	} else if (blockX < lowerThreshX && blockY < lowerThreshY) {
 		// write position 2 output to serial port
 		std::cout << "Go to position 2" << std::endl;
 		writeToPort(2);
-		
-	} else if (blockX >= (pos1X + 20)) {
+	} else if (blockX > upperThreshX && blockY < lowerThreshY) {
 		// write position 3 output to serial port
 		std::cout << "Go to position 3" << std::endl;
 		writeToPort(4);
-		
 	}
 }

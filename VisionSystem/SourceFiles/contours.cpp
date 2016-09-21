@@ -28,6 +28,8 @@
 */
 
 cv::vector<cv::Vec4i> hierarchy;
+int minArea = 0;
+int maxArea = 310000;
 
 /*
 ****************************************** Method Implementations ******************************************
@@ -46,24 +48,44 @@ cv::vector<cv::vector<cv::Point>> getImageContours(cv::Mat image) {
 }
 
 /*
-* Function: drawContours
+* Function: drawContour
 * Parameters: cv::Mat, cv::vector<cv::vector<cv::Point>>, int
 * Return:
 * Purpose: Draw the contour at the index onto the image
 */
-cv::Mat drawContours(cv::Mat source_image, cv::vector<cv::vector<cv::Point>> contours, int index) {
+cv::Mat drawContour(cv::Mat source_image, cv::vector<cv::vector<cv::Point>> contours, int index) {
 	cv::drawContours(source_image, contours, index, CV_RGB(250,255,0), 2, 6, hierarchy);
 	return source_image;
 }
 
+/*
+* Function: drawContours
+* Parameters: cv::Mat, cv::vector<cv::vector<cv::Point>>, int
+* Return:
+* Purpose: Draw all contours
+*/
+cv::Mat drawContours(cv::Mat source_image, cv::vector<cv::vector<cv::Point>> contours) {
+	cv::drawContours(source_image, contours, -1, CV_RGB(250,255,0), 2, 6, hierarchy);
+	return source_image;
+}
 
 /*
-* Function: getContourIndex
+* Function: getContourArea
+* Parameters: cv::vector<cv::vector<cv::Point>>, int
+* Return:
+* Purpose: Finds the area of a contour
+*/
+double getContourArea(cv::vector<cv::Point> contour) {
+	return cv::contourArea(contour, false);
+}
+
+/*
+* Function: getContourByArea
 * Parameters: cv::vector<cv::vector<cv::Point>>
 * Return: int
 * Purpose: Finds the index of the contour which satusfues the area restriction
 */
-int getContourIndex(cv::vector<cv::vector<cv::Point>> contours, double minArea, double maxArea) {
+int getContourByArea(cv::vector<cv::vector<cv::Point>> contours, double minArea, double maxArea) {
 	if (contours.size() > 0) {
 		//std::cout << "Total number of contours: " << contours.size() << std::endl;
 		for (int i = 0; i < contours.size(); i++) {
@@ -79,13 +101,24 @@ int getContourIndex(cv::vector<cv::vector<cv::Point>> contours, double minArea, 
 }
 
 /*
-* Function: getContourArea
-* Parameters: cv::vector<cv::vector<cv::Point>>, int
-* Return:
-* Purpose: Finds the area of a contour
+* Function: getContourByArea
+* Parameters: cv::vector<cv::vector<cv::Point>>
+* Return: int
+* Purpose: Finds the index of the contour which satusfues the area restriction
 */
-double getContourArea(cv::vector<cv::Point> contour) {
-	return cv::contourArea(contour, false);
+int getContourByArea(cv::vector<cv::vector<cv::Point>> contours) {
+	if (contours.size() > 0) {
+		//std::cout << "Total number of contours: " << contours.size() << std::endl;
+		for (int i = 0; i < contours.size(); i++) {
+			double area = cv::contourArea(contours[i], false);
+			//std::cout << "Area of contour " << i << ": " << area << std::endl;
+			if (area >= minArea && area <= maxArea) {
+				//std::cout << contours[i] << std::endl;
+				return i;
+			}
+		}
+	}
+	return -1;
 }
 
 /*
@@ -107,3 +140,20 @@ int getContourStartPointX(cv::vector<cv::Point> contour) {
 int getContourStartPointY(cv::vector<cv::Point> contour) {
 	return (int)contour[0].y;
 }
+
+/*
+* Function: createAreaTrackBar
+* Parameters: N/A
+* Return: void
+* Purpose: Create the trackbar to allow manual analysis fo the contour areas
+*/
+void createAreaTrackBars() {
+
+	cv::namedWindow("Area Thresholds", CV_WINDOW_AUTOSIZE);
+	
+	//Create trackbars in "Control" window
+	cvCreateTrackbar("minArea", "Area Thresholds", &minArea, 5000);
+	cvCreateTrackbar("maxArea", "Area Thresholds", &maxArea, 5000);
+}
+
+

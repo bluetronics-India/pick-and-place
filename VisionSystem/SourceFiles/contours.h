@@ -22,12 +22,13 @@
 */
 
 cv::vector<cv::vector<cv::Point>> getImageContours(cv::Mat);
-int getContourIndex(cv::vector<cv::vector<cv::Point>>, double, double);
-cv::Mat drawContours(cv::Mat, cv::vector<cv::vector<cv::Point>>, int);
-
+cv::Mat drawContour(cv::Mat, cv::vector<cv::vector<cv::Point>>, int);
+cv::Mat drawContours(cv::Mat source_image, cv::vector<cv::vector<cv::Point>>);
 double getContourArea(cv::vector<cv::Point>);
-
+int getContourByArea(cv::vector<cv::vector<cv::Point>>, double, double);
+int getContourByArea(cv::vector<cv::vector<cv::Point>>);
 int getContourStartPointX(cv::vector<cv::Point>);
 int getContourStartPointY(cv::vector<cv::Point>);
+void createAreaTrackBars();
 
 #endif

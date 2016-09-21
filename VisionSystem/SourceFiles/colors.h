@@ -24,8 +24,7 @@
 cv::Mat convertToHSV(cv::Mat);
 cv::Mat convertToGREY(cv::Mat);
 cv::Mat colorThresholding(cv::Mat, int);
-
-cv::Mat modifyWithTrackBars(cv::Mat);
-void createTrackBars();
+cv::Mat manualColorFiltering(cv::Mat);
+void createColorTrackBars();
 
 #endif

@@ -37,8 +37,8 @@
 */
 
 void processVideo(cv::VideoCapture);
-void processImage(cv::Mat);
-void testProcessImage(cv::Mat);
+void autoFiltering(cv::Mat);
+void manualFiltering(cv::Mat);
 
 /*
 ****************************************** Method Implementations ******************************************
@@ -66,16 +66,16 @@ int main(int argc, char** argv) {
 			processVideo(capture);
 		}
 	} else if (std::strcmp(argv[1], "-img") == 0) {
-		if (argc != 3) {
-			std::cout << "Incorrect program call please use \"VisionSystem.exe -img filename\" for image processing" << std::endl;
-			exit(EXIT_FAILURE);
+		cv::Mat frame;
+		if (argc > 2) {
+			char* filename = argv[2];
+			frame = openImage(filename);
 		} else {
-			cv::Mat frame;
 			cv::VideoCapture capture = startCameraStream(0);
+			cv::waitKey(5000);
 			capture >> frame;
-			processImage(frame);
-			//std::cout << "it worked" << std::endl;
 		}
+		autoFiltering(frame);
 	} else if (std::strcmp(argv[1], "-test") == 0) {
 		cv::Mat frame;
 		if (argc > 2) {
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 			cv::waitKey(5000);
 			capture >> frame;
 		}
-		testProcessImage(frame);
+		manualFiltering(frame);
 	} else {
 		std::cout << "You are an IDIOT!!!!" << std::endl;
 		exit(EXIT_FAILURE);
@@ -104,6 +104,7 @@ void processVideo(cv::VideoCapture capture) {
 	cv::Mat frame;
 	std::cout << "Please place red block in position 1." << std::endl;
 	std::cin.ignore(); // wait for key press
+	// allow camera to adjust to background and lighting
 	for (int i = 0; i < 10; i++) {
 		capture >> frame;
 	}
@@ -119,41 +120,55 @@ void processVideo(cv::VideoCapture capture) {
 	while ((char)cv::waitKey(5) != 27) {
 		capture >> frame;
 		checkForColoredBlocks(frame);
-		displayFrame("Image", frame);
+		displayFrame("Current Image", frame);
 		saveFrame(frame);
 	}
 }
 
 /*
-* Function: processImage
+* Function: autoFiltering
 * Parameters: cv::Mat
 * Return: void
 * Purpose:
 */
-void processImage(cv::Mat frame) {
-	intialisePos1(frame);
+void autoFiltering(cv::Mat frame) {
+	cv::Mat red_image, blue_image, green_image;
+	red_image = colorThresholding(frame, RED);
+	blue_image = colorThresholding(frame, BLUE);
+	green_image = colorThresholding(frame, GREEN);
 
+	displayFrame("Red Thresholded", red_image);
+	displayFrame("Blue Thresholded", blue_image);
+	displayFrame("Green Thresholded", green_image);
+	cv::waitKey(5);
+	std::cout << "Press any key to finish." << std::endl;
+	std::cin.ignore(); // wait for key press
 }
 
 /*
-* Function: testProcessImage
+* Function: manualFiltering
 * Parameters: cv::Mat
 * Return: void
-* Purpose: Allow manual colr thresholding 
+* Purpose: Allow manual color thresholding 
 */
-void testProcessImage(cv::Mat frame) {
-	cv::Mat thresholded_image, contoured_image;
-	createTrackBars();
+void manualFiltering(cv::Mat frame) {
+	cv::Mat thresholded_image, contoured_image, area_image;
+	createColorTrackBars();
+	createAreaTrackBars();
 	
 	while ((char)cv::waitKey(5) != 27) {
 		displayFrame("Original Image", frame);
-		thresholded_image = modifyWithTrackBars(frame);
+		thresholded_image = manualColorFiltering(frame);
 		displayFrame("Colors", thresholded_image);
 		cv::vector<cv::vector<cv::Point>> contours = getImageContours(thresholded_image);
-		int index = getContourIndex(contours, 0, 10000);
-		std::cout << "index: " << index << std::endl;
-		//contoured_image = drawContours(frame.clone(), contours, index);
+		contoured_image = drawContours(frame.clone(), contours);
 		displayFrame("Contours", contoured_image);
-		std::cout << "Area: " << getContourArea(contours[index]);
+		int index = getContourByArea(contours);
+		std::cout << "Index: " << index << std::endl;
+		if (index != -1) {
+			std::cout << "Area: " << getContourArea(contours[index]);
+			area_image = drawContour(frame.clone(), contours, index);
+			displayFrame("Contour By Area", area_image);
+		}
 	}
 }
