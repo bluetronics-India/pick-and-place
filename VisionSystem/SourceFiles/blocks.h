@@ -34,6 +34,8 @@ cv::vector<cv::vector<cv::Point>> getRedContours(cv::Mat);
 cv::vector<cv::vector<cv::Point>> getBlueContours(cv::Mat);
 cv::vector<cv::vector<cv::Point>> getGreenContours(cv::Mat);
 
-void checkPos(int, int);
+int checkPos(int, int);
+int checkColor(int);
+void sendMessage(int, int);
 
 #endif

@@ -14,6 +14,8 @@
 #include "frame.h"
 #include "contours.h"
 #include "blocks.h"
+#include "serial.h"
+#include <cstdlib>
 
 /*
 ****************************************** Constants Declarations ******************************************
@@ -53,13 +55,14 @@ void manualFiltering(cv::Mat);
 int main(int argc, char** argv) {
 		// select what is to be processed
 	if (argc < 2) {
-		std::cout << "Please specify whether to process video or an image using -vid or -img after \"VisionSystem.exe\"" << std::endl;
-		exit(EXIT_FAILURE);
+		std::cout << "Please specify whether to process video or an image using -vid, -img, -test, or -ser after \"VisionSystem.exe\"" << std::endl;
+		return 0;
 	}
+	//std::cout << "Argument: " << argv[1] << std::endl;
 	if (std::strcmp(argv[1], "-vid") == 0) {
 		if (argc != 3) {
 			std::cout << "Incorrect program call please use \"VisionSystem.exe -vid 0\" for video stream processing" << std::endl;
-			exit(EXIT_FAILURE);;
+			return 0;
 		} else {
 			// need to convert argv[2] to int
 			cv::VideoCapture capture = startCameraStream(0);
@@ -70,28 +73,43 @@ int main(int argc, char** argv) {
 		if (argc > 2) {
 			char* filename = argv[2];
 			frame = openImage(filename);
+			autoFiltering(frame);
 		} else {
 			cv::VideoCapture capture = startCameraStream(0);
-			cv::waitKey(5000);
-			capture >> frame;
+			while((char)cv::waitKey(5) != 27){
+				capture >> frame;
+				autoFiltering(frame);
+			}
 		}
-		autoFiltering(frame);
 	} else if (std::strcmp(argv[1], "-test") == 0) {
 		cv::Mat frame;
 		if (argc > 2) {
 			char* filename = argv[2];
 			frame = openImage(filename);
+			manualFiltering(frame);
 		} else {
+			createColorTrackBars();
+			createAreaTrackBars();
 			cv::VideoCapture capture = startCameraStream(0);
-			cv::waitKey(5000);
-			capture >> frame;
+
+			while((char)cv::waitKey(5) != 27){
+				capture >> frame;
+				manualFiltering(frame);
+			}
 		}
-		manualFiltering(frame);
+	} else if (std::strcmp(argv[1], "-ser") == 0) {
+		if (argc != 3) {
+			std::cout << "Incorrect program call please use \"VisionSystem.exe -ser\" followed by the number to write to the serial port." << std::endl;
+			return 0;
+		} else {
+			std::cout << "Writing " << argv[2] << " to parallel port." << std::endl;
+			writeToPort(atoi(argv[2]));
+		}
 	} else {
 		std::cout << "You are an IDIOT!!!!" << std::endl;
-		exit(EXIT_FAILURE);
+		return 0;
 	}
-	return 0;
+	return 1;
 }
 
 /*
@@ -138,11 +156,11 @@ void autoFiltering(cv::Mat frame) {
 	green_image = colorThresholding(frame, GREEN);
 
 	displayFrame("Red Thresholded", red_image);
+	cv::waitKey(5);
 	displayFrame("Blue Thresholded", blue_image);
+	cv::waitKey(5);
 	displayFrame("Green Thresholded", green_image);
 	cv::waitKey(5);
-	std::cout << "Press any key to finish." << std::endl;
-	std::cin.ignore(); // wait for key press
 }
 
 /*
@@ -153,22 +171,18 @@ void autoFiltering(cv::Mat frame) {
 */
 void manualFiltering(cv::Mat frame) {
 	cv::Mat thresholded_image, contoured_image, area_image;
-	createColorTrackBars();
-	createAreaTrackBars();
 	
-	while ((char)cv::waitKey(5) != 27) {
-		displayFrame("Original Image", frame);
-		thresholded_image = manualColorFiltering(frame);
-		displayFrame("Colors", thresholded_image);
-		cv::vector<cv::vector<cv::Point>> contours = getImageContours(thresholded_image);
-		contoured_image = drawContours(frame.clone(), contours);
-		displayFrame("Contours", contoured_image);
-		int index = getContourByArea(contours);
-		std::cout << "Index: " << index << std::endl;
-		if (index != -1) {
-			std::cout << "Area: " << getContourArea(contours[index]);
-			area_image = drawContour(frame.clone(), contours, index);
-			displayFrame("Contour By Area", area_image);
-		}
+	displayFrame("Original Image", frame);
+	thresholded_image = manualColorFiltering(frame);
+	displayFrame("Colors", thresholded_image);
+	cv::vector<cv::vector<cv::Point>> contours = getImageContours(thresholded_image);
+	contoured_image = drawContours(frame.clone(), contours);
+	displayFrame("Contours", contoured_image);
+	int index = getContourByArea(contours);
+	std::cout << "Index: " << index << std::endl;
+	if (index != -1) {
+		std::cout << "Area: " << getContourArea(contours[index]);
+		area_image = drawContour(frame.clone(), contours, index);
+		displayFrame("Contour By Area", area_image);
 	}
 }
