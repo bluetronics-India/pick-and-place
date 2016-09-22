@@ -23,7 +23,7 @@
 #define GREEN 4
 #define ALL 5
 
-#define ERROR 25
+#define ERROR 35
 #define POS1 1
 #define POS2 2
 #define POS3 4

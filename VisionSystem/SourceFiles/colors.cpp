@@ -91,7 +91,7 @@ cv::Mat colorThresholding(cv::Mat image, int threshold_color) {
 		inRange(hsv_image, cv::Scalar(75, 75, 75), cv::Scalar(120, 255, 255), threshold_image);
 		break;
 	case GREEN:
-		inRange(hsv_image, cv::Scalar(50, 40, 40), cv::Scalar(100, 255, 200), threshold_image);
+		inRange(hsv_image, cv::Scalar(45, 50, 0), cv::Scalar(100, 255, 255), threshold_image);
 		break;
 	case ALL:
 		inRange(hsv_image, cv::Scalar(0, 0, 0), cv::Scalar(179, 255, 255), threshold_image);
